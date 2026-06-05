@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audit Intelligence Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  TOP BAR                                                -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="firm-logo">
+        <span class="logo-mark">◈</span>
+        <div class="firm-name-block">
+          <span class="firm-name">AuditPortal</span>
+          <span class="firm-tagline">Intelligence Dashboard</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar-center">
+      <div class="search-bar">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="cardSearch" placeholder="Search tools…" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <div class="sync-status" id="syncStatus">
+        <span class="sync-dot"></span>
+        <span class="sync-label">Syncing…</span>
+      </div>
+      <div class="workspace-badge" id="workspaceBadge" title="Connected workspace"></div>
+      <button class="btn-icon" id="btnSettings" title="Manage Cards">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+        </svg>
+      </button>
+      <button class="btn-icon" id="btnRefresh" title="Refresh">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+        </svg>
+      </button>
+      <button class="btn-icon" id="btnLogout" title="Disconnect / Logout" style="color:#e05252;border-color:rgba(224,82,82,0.25);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+      <div class="user-avatar" id="userAvatar">A</div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  CATEGORY FILTER BAR                                    -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <nav class="category-bar" id="categoryBar">
+    <button class="cat-pill active" data-cat="all">All Tools</button>
+    <!-- Dynamic categories injected here -->
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  MAIN DASHBOARD GRID                                    -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <main class="dashboard-main">
+    <div class="grid-header">
+      <h1 class="grid-title" id="gridTitle">All Tools</h1>
+      <span class="grid-count" id="gridCount">0 tools</span>
+    </div>
+    <div class="cards-grid" id="cardsGrid">
+      <!-- Cards injected dynamically -->
+    </div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="empty-icon">◎</div>
+      <p class="empty-title">No tools yet</p>
+      <p class="empty-sub">Click the ⚙ settings button to add your first audit tool card.</p>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  SETTINGS PANEL (slide-in)                             -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <aside class="settings-panel" id="settingsPanel">
+    <div class="settings-header">
+      <h2>Manage Cards</h2>
+      <button class="btn-close" id="btnCloseSettings">✕</button>
+    </div>
+    <div class="settings-body">
+
+      <div class="settings-section">
+        <h3>Add New Tool Card</h3>
+        <div class="form-group">
+          <label>Tool Name *</label>
+          <input type="text" id="newCardName" placeholder="e.g., Risk Assessment Tool" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="newCardDesc" rows="2" placeholder="Brief description of this audit tool…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <input type="text" id="newCardCategory" placeholder="e.g., Risk, Compliance, Financial" list="categoryList" />
+          <datalist id="categoryList"></datalist>
+        </div>
+        <div class="form-group">
+          <label>HTML File Path / URL *</label>
+          <input type="text" id="newCardUrl" placeholder="cards/my-tool.html  or  https://…" />
+          <small>Relative path (for GitHub Pages) or full URL</small>
+        </div>
+        <div class="form-group">
+          <label>Icon (emoji or symbol)</label>
+          <input type="text" id="newCardIcon" placeholder="📊" maxlength="4" />
+        </div>
+        <div class="form-group">
+          <label>Version</label>
+          <input type="text" id="newCardVersion" placeholder="v1.0" />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="newCardStatus">
+            <option value="active">Active</option>
+            <option value="beta">Beta</option>
+            <option value="draft">Draft</option>
+            <option value="deprecated">Deprecated</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="btnAddCard">Add Card to Dashboard</button>
+      </div>
+
+      <div class="settings-divider"></div>
+
+      <div class="settings-section">
+        <h3>Existing Cards</h3>
+        <div class="existing-cards-list" id="existingCardsList">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+    </div>
+  </aside>
+  <div class="settings-overlay" id="settingsOverlay"></div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  EDIT CARD MODAL                                        -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="editModalOverlay">
+    <div class="modal" id="editModal">
+      <div class="modal-header">
+        <h3>Edit Card</h3>
+        <button class="btn-close" id="btnCloseEdit">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editCardId" />
+        <div class="form-group">
+          <label>Tool Name *</label>
+          <input type="text" id="editCardName" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="editCardDesc" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <input type="text" id="editCardCategory" list="categoryList" />
+        </div>
+        <div class="form-group">
+          <label>HTML File Path / URL *</label>
+          <input type="text" id="editCardUrl" />
+        </div>
+        <div class="form-group">
+          <label>Icon</label>
+          <input type="text" id="editCardIcon" maxlength="4" />
+        </div>
+        <div class="form-group">
+          <label>Version</label>
+          <input type="text" id="editCardVersion" />
+        </div>
+        <div class="form-group">
+          <label>Changelog / Update Notes</label>
+          <textarea id="editCardChangelog" rows="2" placeholder="What changed in this version?"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="editCardStatus">
+            <option value="active">Active</option>
+            <option value="beta">Beta</option>
+            <option value="draft">Draft</option>
+            <option value="deprecated">Deprecated</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-danger" id="btnDeleteCard">Delete Card</button>
+        <button class="btn-primary" id="btnSaveEdit">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  CARD VIEWER (iframe overlay)                           -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="viewer-overlay" id="viewerOverlay">
+    <div class="viewer-toolbar">
+      <span class="viewer-title" id="viewerTitle"></span>
+      <div class="viewer-actions">
+        <a class="btn-icon viewer-btn" id="viewerOpenTab" title="Open in New Tab" target="_blank">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+        </a>
+        <button class="btn-icon viewer-btn" id="btnCloseViewer" title="Close">✕</button>
+      </div>
+    </div>
+    <iframe id="cardFrame" src="" frameborder="0" allowfullscreen></iframe>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  TOAST NOTIFICATIONS                                    -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!--  SCRIPTS                                                -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <script type="module">
+    // ─── Guard: redirect to login if no session ──────────────
+    const raw = sessionStorage.getItem("auditportal_session");
+    if (!raw) {
+      window.location.href = "login.html";
+      throw new Error("No session — redirecting to login.");
+    }
+
+    let session;
+    try { session = JSON.parse(raw); }
+    catch {
+      sessionStorage.removeItem("auditportal_session");
+      window.location.href = "login.html";
+      throw new Error("Corrupt session — redirecting.");
+    }
+
+    // Expose workspace name for topbar
+    window.WORKSPACE_NAME = session.name || "Audit Portal";
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, updateDoc,
+      deleteDoc, doc, onSnapshot, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // ─── Init Firebase from session config ───────────────────
+    const app = initializeApp(session.config);
+    const db  = getFirestore(app);
+    const COLLECTION = "audit_cards";
+
+    // ─── Expose DB helpers to global scope ───────────────────
+    window._db = {
+      subscribe: (cb) => onSnapshot(collection(db, COLLECTION), snap => {
+        const docs = [];
+        snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+        cb(docs);
+      }),
+      add:    (data)     => addDoc(collection(db, COLLECTION), { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }),
+      update: (id, data) => updateDoc(doc(db, COLLECTION, id), { ...data, updatedAt: serverTimestamp() }),
+      delete: (id)       => deleteDoc(doc(db, COLLECTION, id)),
+    };
+
+    // ─── Signal app.js that Firebase is ready ────────────────
+    document.dispatchEvent(new Event("firebase-ready"));
+  </script>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

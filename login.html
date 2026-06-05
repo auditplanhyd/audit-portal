@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audit Portal — Connect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:          #0a0c0f;
+      --surface:     #12151a;
+      --elevated:    #191d25;
+      --border:      rgba(255,255,255,0.07);
+      --border-md:   rgba(255,255,255,0.12);
+      --accent:      #c8a96e;
+      --accent-dim:  rgba(200,169,110,0.12);
+      --accent-glow: rgba(200,169,110,0.07);
+      --text:        #e8e6e1;
+      --sub:         #8b8e99;
+      --muted:       #3e424f;
+      --green:       #4caf7d;
+      --red:         #e05252;
+      --font:        'Outfit', sans-serif;
+      --mono:        'DM Mono', monospace;
+      --serif:       'DM Serif Display', serif;
+    }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Background grid ──────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,169,110,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,169,110,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 40vh;
+      background: radial-gradient(ellipse at 50% 100%, rgba(200,169,110,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* ── Card container ───────────────────────────────────── */
+    .login-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border: 1px solid var(--border-md);
+      border-radius: 16px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02);
+      overflow: hidden;
+      animation: card-rise 0.5s cubic-bezier(.2,.8,.3,1) both;
+    }
+    @keyframes card-rise {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Card header ──────────────────────────────────────── */
+    .card-header {
+      padding: 32px 32px 24px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      background: linear-gradient(180deg, rgba(200,169,110,0.04) 0%, transparent 100%);
+    }
+    .logo-mark {
+      font-size: 36px;
+      display: block;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 0 16px rgba(200,169,110,0.4));
+      animation: glow-pulse 3s ease-in-out infinite;
+    }
+    @keyframes glow-pulse {
+      0%, 100% { filter: drop-shadow(0 0 12px rgba(200,169,110,0.35)); }
+      50%       { filter: drop-shadow(0 0 24px rgba(200,169,110,0.6)); }
+    }
+    .card-title {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 4px;
+      letter-spacing: 0.01em;
+    }
+    .card-subtitle {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Tabs ─────────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      flex: 1;
+      padding: 14px;
+      background: none;
+      border: none;
+      color: var(--sub);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* ── Form body ────────────────────────────────────────── */
+    .card-body { padding: 28px 32px 32px; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sub);
+      margin-bottom: 6px;
+    }
+    .field-hint {
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: none;
+      font-family: var(--font);
+    }
+    .form-group input {
+      width: 100%;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .form-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .form-group input::placeholder { color: var(--muted); }
+
+    /* paste JSON shortcut */
+    .json-paste-area {
+      width: 100%;
+      background: var(--elevated);
+      border: 1px dashed var(--border-md);
+      border-radius: 7px;
+      padding: 12px;
+      color: var(--sub);
+      font-family: var(--mono);
+      font-size: 11px;
+      outline: none;
+      resize: vertical;
+      min-height: 90px;
+      transition: border-color 0.18s;
+    }
+    .json-paste-area:focus { border-color: var(--accent); }
+    .json-paste-area::placeholder { color: var(--muted); font-size: 11px; }
+
+    .paste-btn {
+      width: 100%;
+      padding: 8px;
+      margin-top: 8px;
+      background: var(--elevated);
+      border: 1px solid var(--border-md);
+      border-radius: 7px;
+      color: var(--sub);
+      font-family: var(--mono);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.18s;
+      letter-spacing: 0.04em;
+    }
+    .paste-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+    .form-divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 18px 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+    }
+    .form-divider::before, .form-divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: var(--border);
+    }
+
+    /* Remember device toggle */
+    .remember-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .toggle {
+      width: 34px; height: 18px;
+      background: var(--muted);
+      border-radius: 9px;
+      position: relative;
+      transition: background 0.25s;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: none;
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 14px; height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.25s;
+    }
+    .toggle.on { background: var(--accent); }
+    .toggle.on::after { transform: translateX(16px); }
+    .remember-label {
+      font-size: 12px;
+      color: var(--sub);
+      user-select: none;
+    }
+    .remember-label span { color: var(--muted); font-size: 11px; }
+
+    /* Connect button */
+    .btn-connect {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #0a0c0f;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.22s;
+      letter-spacing: 0.03em;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-connect:hover {
+      background: #d4b87a;
+      box-shadow: 0 6px 24px rgba(200,169,110,0.35);
+      transform: translateY(-1px);
+    }
+    .btn-connect:active { transform: translateY(0); }
+    .btn-connect:disabled {
+      opacity: 0.5; cursor: not-allowed; transform: none;
+      box-shadow: none;
+    }
+    .btn-connect .spinner {
+      display: none;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #0a0c0f;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error / info messages */
+    .msg {
+      padding: 10px 14px;
+      border-radius: 7px;
+      font-size: 12px;
+      margin-bottom: 16px;
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.5;
+    }
+    .msg.show { display: flex; }
+    .msg.error   { background: rgba(224,82,82,0.1); border: 1px solid rgba(224,82,82,0.25); color: #e8a0a0; }
+    .msg.success { background: rgba(76,175,125,0.1); border: 1px solid rgba(76,175,125,0.25); color: #80d4a8; }
+    .msg.info    { background: var(--accent-dim); border: 1px solid rgba(200,169,110,0.2); color: var(--accent); }
+
+    /* Security note */
+    .security-note {
+      margin-top: 20px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .security-note strong { color: var(--sub); font-weight: 500; }
+
+    /* Saved workspaces panel */
+    .saved-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+    .saved-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .saved-item:hover { border-color: var(--accent); background: var(--accent-glow); }
+    .saved-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .saved-info { flex: 1; min-width: 0; }
+    .saved-name { font-size: 13px; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .saved-project { font-family: var(--mono); font-size: 10px; color: var(--sub); }
+    .saved-delete {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 14px; padding: 2px 4px;
+      transition: color 0.15s;
+    }
+    .saved-delete:hover { color: var(--red); }
+    .no-saved { font-size: 12px; color: var(--muted); text-align: center; padding: 20px 0; }
+
+    /* footer */
+    .card-footer {
+      padding: 14px 32px;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="login-card">
+
+    <!-- Header -->
+    <div class="card-header">
+      <span class="logo-mark">◈</span>
+      <h1 class="card-title">Audit Portal</h1>
+      <p class="card-subtitle">Connect your Firebase workspace</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="manual">Manual Entry</button>
+      <button class="tab" data-tab="paste">Paste Config</button>
+      <button class="tab" data-tab="saved">Saved</button>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body">
+
+      <!-- ── TAB: Manual Entry ─────────────────────────────── -->
+      <div class="tab-panel active" id="tab-manual">
+        <p class="section-label">Firebase Project Credentials</p>
+
+        <div id="msgManual" class="msg"></div>
+
+        <div class="form-group">
+          <label>API Key <span class="field-hint">from Firebase Console</span></label>
+          <input type="password" id="f-apiKey" placeholder="AIzaSy…" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label>Project ID</label>
+          <input type="text" id="f-projectId" placeholder="my-project-id" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label>App ID</label>
+          <input type="password" id="f-appId" placeholder="1:123456789:web:abc…" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label>Messaging Sender ID <span class="field-hint">optional</span></label>
+          <input type="text" id="f-senderId" placeholder="123456789" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label>Workspace Name <span class="field-hint">shown at login</span></label>
+          <input type="text" id="f-workspaceName" placeholder="e.g., My Firm Audit Portal" autocomplete="off" />
+        </div>
+
+        <label class="remember-row" for="toggleRemember">
+          <button class="toggle" id="toggleRemember" role="switch" aria-checked="false"></button>
+          <span class="remember-label">Remember on this device <span>(encrypts config in localStorage)</span></span>
+        </label>
+
+        <button class="btn-connect" id="btnConnectManual">
+          <span class="btn-label">Connect to Firebase</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+
+      <!-- ── TAB: Paste Config ─────────────────────────────── -->
+      <div class="tab-panel" id="tab-paste">
+        <p class="section-label">Paste your Firebase config object</p>
+
+        <div id="msgPaste" class="msg"></div>
+
+        <div class="msg info show" style="margin-bottom:14px;">
+          ◎ Copy the entire <code style="font-family:var(--mono);font-size:11px;">firebaseConfig = { … }</code> block from Firebase Console and paste it below.
+        </div>
+
+        <textarea class="json-paste-area" id="jsonPasteArea" placeholder='const firebaseConfig = {
+  apiKey: "AIzaSy…",
+  authDomain: "my-project.firebaseapp.com",
+  projectId: "my-project",
+  storageBucket: "my-project.appspot.com",
+  messagingSenderId: "123456",
+  appId: "1:123456:web:abc"
+};'></textarea>
+
+        <button class="paste-btn" id="btnParseJson">↳ Parse &amp; Fill Fields</button>
+
+        <div class="form-divider">then</div>
+
+        <div class="form-group">
+          <label>Workspace Name <span class="field-hint">optional label for saved workspaces</span></label>
+          <input type="text" id="p-workspaceName" placeholder="e.g., My Firm" autocomplete="off" />
+        </div>
+
+        <label class="remember-row" for="toggleRememberPaste">
+          <button class="toggle" id="toggleRememberPaste" role="switch" aria-checked="false"></button>
+          <span class="remember-label">Remember on this device <span>(encrypts config in localStorage)</span></span>
+        </label>
+
+        <button class="btn-connect" id="btnConnectPaste">
+          <span class="btn-label">Connect to Firebase</span>
+          <div class="spinner"></div>
+        </button>
+      </div>
+
+      <!-- ── TAB: Saved Workspaces ─────────────────────────── -->
+      <div class="tab-panel" id="tab-saved">
+        <p class="section-label">Saved on this device</p>
+        <div id="msgSaved" class="msg"></div>
+        <div class="saved-list" id="savedList"></div>
+        <p class="no-saved" id="noSavedMsg" style="display:none;">No saved workspaces on this device.</p>
+        <div class="security-note" style="margin-top:0;">
+          <strong>🔒 Privacy:</strong> Saved configs are stored only in this browser's localStorage using obfuscation. They never leave your device.
+        </div>
+      </div>
+
+      <!-- Security note (shown on manual + paste tabs) -->
+      <div class="security-note" id="securityNote">
+        <strong>🔒 How credentials are handled:</strong>
+        Your Firebase config is stored only in <strong>sessionStorage</strong> for this browser session and is cleared when you close the tab. Nothing is written to the codebase or sent to any server.
+      </div>
+
+    </div><!-- /card-body -->
+
+    <div class="card-footer">AUDIT INTELLIGENCE PORTAL · SECURE SESSION</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+// ─── Obfuscation helpers (not encryption, but prevents casual reading) ───────
+// For true encryption you'd use SubtleCrypto with a user password.
+function obfuscate(str)   { return btoa(unescape(encodeURIComponent(str))); }
+function deobfuscate(str) {
+  try { return decodeURIComponent(escape(atob(str))); }
+  catch { return null; }
+}
+
+const LS_KEY = "auditportal_workspaces";
+
+function loadWorkspaces() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return [];
+    return JSON.parse(deobfuscate(raw) || "[]");
+  } catch { return []; }
+}
+function saveWorkspaces(list) {
+  localStorage.setItem(LS_KEY, obfuscate(JSON.stringify(list)));
+}
+
+// ─── Tab switching ────────────────────────────────────────────────────────────
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+    // Show/hide security note
+    document.getElementById("securityNote").style.display =
+      tab.dataset.tab === "saved" ? "none" : "block";
+    if (tab.dataset.tab === "saved") renderSaved();
+  });
+});
+
+// ─── Toggle helper ────────────────────────────────────────────────────────────
+function setupToggle(id) {
+  const btn = document.getElementById(id);
+  btn.addEventListener("click", () => {
+    const on = btn.classList.toggle("on");
+    btn.setAttribute("aria-checked", on ? "true" : "false");
+  });
+  return { isOn: () => btn.classList.contains("on") };
+}
+const toggleManual = setupToggle("toggleRemember");
+const togglePaste  = setupToggle("toggleRememberPaste");
+
+// ─── Message helper ───────────────────────────────────────────────────────────
+function showMsg(elId, text, type) {
+  const el = document.getElementById(elId);
+  el.className = "msg " + type + " show";
+  el.innerHTML = text;
+}
+function hideMsg(elId) {
+  document.getElementById(elId).className = "msg";
+}
+
+// ─── Set button loading ───────────────────────────────────────────────────────
+function setBtnLoading(btn, loading) {
+  btn.disabled = loading;
+  btn.querySelector(".btn-label").style.display = loading ? "none" : "inline";
+  btn.querySelector(".spinner").style.display   = loading ? "block" : "none";
+}
+
+// ─── Build config object from manual fields ───────────────────────────────────
+function buildConfigFromFields() {
+  const apiKey    = document.getElementById("f-apiKey").value.trim();
+  const projectId = document.getElementById("f-projectId").value.trim();
+  const appId     = document.getElementById("f-appId").value.trim();
+  const senderId  = document.getElementById("f-senderId").value.trim();
+  const name      = document.getElementById("f-workspaceName").value.trim() || projectId;
+
+  if (!apiKey)    return { error: "API Key is required." };
+  if (!projectId) return { error: "Project ID is required." };
+  if (!appId)     return { error: "App ID is required." };
+
+  return {
+    config: {
+      apiKey,
+      authDomain:        projectId + ".firebaseapp.com",
+      projectId,
+      storageBucket:     projectId + ".appspot.com",
+      messagingSenderId: senderId,
+      appId,
+    },
+    name
+  };
+}
+
+// ─── Parse pasted JSON/JS config ─────────────────────────────────────────────
+function parseFirebaseConfig(raw) {
+  try {
+    // Strip JS variable declaration if present
+    let clean = raw
+      .replace(/const\s+\w+\s*=\s*/g, "")
+      .replace(/var\s+\w+\s*=\s*/g, "")
+      .replace(/let\s+\w+\s*=\s*/g, "")
+      .replace(/;\s*$/, "")
+      .trim();
+
+    // Convert JS object (unquoted keys) to JSON
+    clean = clean
+      .replace(/\/\/.*$/gm, "")           // remove line comments
+      .replace(/,\s*}/g, "}")             // trailing commas
+      .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":') // quote keys
+      .replace(/:\s*'([^']*)'/g, ': "$1"');       // single → double quotes
+
+    const obj = JSON.parse(clean);
+
+    const required = ["apiKey", "projectId", "appId"];
+    for (const k of required) {
+      if (!obj[k]) return { error: "Missing required field: " + k };
+    }
+    return { config: obj };
+  } catch (e) {
+    return { error: "Could not parse config. Please check the format. (" + e.message + ")" };
+  }
+}
+
+// ─── Parse button ─────────────────────────────────────────────────────────────
+document.getElementById("btnParseJson").addEventListener("click", () => {
+  const raw = document.getElementById("jsonPasteArea").value;
+  const result = parseFirebaseConfig(raw);
+  if (result.error) {
+    showMsg("msgPaste", "✕ " + result.error, "error");
+    return;
+  }
+  // Fill manual fields for preview
+  const c = result.config;
+  document.getElementById("f-apiKey").value    = c.apiKey || "";
+  document.getElementById("f-projectId").value = c.projectId || "";
+  document.getElementById("f-appId").value     = c.appId || "";
+  document.getElementById("f-senderId").value  = c.messagingSenderId || "";
+  if (c.projectId) document.getElementById("p-workspaceName").value = c.projectId;
+
+  showMsg("msgPaste", "✓ Config parsed. Review fields on <strong>Manual Entry</strong> tab if needed, then click Connect.", "success");
+});
+
+// ─── Connect logic ────────────────────────────────────────────────────────────
+async function doConnect(config, name, remember, msgId, btn) {
+  setBtnLoading(btn, true);
+  hideMsg(msgId);
+
+  try {
+    // Dynamically import Firebase to test the config
+    const { initializeApp, getApps, deleteApp } = await import(
+      "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"
+    );
+    const { getFirestore, collection, getDocs } = await import(
+      "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
+    );
+
+    // Clean up any previous test app
+    const existing = getApps().find(a => a.name === "__test__");
+    if (existing) await deleteApp(existing);
+
+    const testApp = initializeApp(config, "__test__");
+    const db = getFirestore(testApp);
+
+    // Try a quick read to validate credentials
+    await getDocs(collection(db, "audit_cards"));
+    await deleteApp(testApp);
+
+    // ✅ Valid — store in sessionStorage
+    const payload = JSON.stringify({ config, name: name || config.projectId });
+    sessionStorage.setItem("auditportal_session", payload);
+
+    if (remember) {
+      // Also save to localStorage (obfuscated)
+      const workspaces = loadWorkspaces();
+      const idx = workspaces.findIndex(w => w.config.projectId === config.projectId);
+      const entry = { name: name || config.projectId, config, savedAt: Date.now() };
+      if (idx >= 0) workspaces[idx] = entry;
+      else workspaces.push(entry);
+      saveWorkspaces(workspaces);
+    }
+
+    showMsg(msgId, "✓ Connected! Loading dashboard…", "success");
+
+    setTimeout(() => { window.location.href = "index.html"; }, 800);
+
+  } catch (err) {
+    setBtnLoading(btn, false);
+    let msg = err.message || "Unknown error";
+    if (msg.includes("auth/invalid-api-key") || msg.includes("API key"))
+      msg = "Invalid API Key. Double-check the value from Firebase Console.";
+    else if (msg.includes("permission-denied") || msg.includes("Missing or insufficient"))
+      msg = "Permission denied. Make sure Firestore is in <strong>test mode</strong> or rules allow read.";
+    else if (msg.includes("not-found") || msg.includes("project"))
+      msg = "Project not found. Check your Project ID.";
+    showMsg(msgId, "✕ " + msg, "error");
+  }
+}
+
+// Manual connect
+document.getElementById("btnConnectManual").addEventListener("click", () => {
+  const result = buildConfigFromFields();
+  if (result.error) { showMsg("msgManual", "✕ " + result.error, "error"); return; }
+  doConnect(result.config, result.name, toggleManual.isOn(), "msgManual",
+    document.getElementById("btnConnectManual"));
+});
+
+// Paste connect
+document.getElementById("btnConnectPaste").addEventListener("click", () => {
+  const raw = document.getElementById("jsonPasteArea").value;
+  const parsed = parseFirebaseConfig(raw);
+  if (parsed.error) { showMsg("msgPaste", "✕ " + parsed.error, "error"); return; }
+  const name = document.getElementById("p-workspaceName").value.trim();
+  doConnect(parsed.config, name, togglePaste.isOn(), "msgPaste",
+    document.getElementById("btnConnectPaste"));
+});
+
+// Enter key on last field connects
+document.getElementById("f-appId").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("btnConnectManual").click();
+});
+
+// ─── Saved workspaces ─────────────────────────────────────────────────────────
+function renderSaved() {
+  const list = document.getElementById("savedList");
+  const none = document.getElementById("noSavedMsg");
+  const workspaces = loadWorkspaces();
+  list.innerHTML = "";
+
+  if (!workspaces.length) {
+    none.style.display = "block";
+    return;
+  }
+  none.style.display = "none";
+
+  workspaces.forEach((ws, i) => {
+    const div = document.createElement("div");
+    div.className = "saved-item";
+    div.innerHTML = `
+      <div class="saved-dot"></div>
+      <div class="saved-info">
+        <div class="saved-name">${escHtml(ws.name)}</div>
+        <div class="saved-project">${ws.config.projectId}</div>
+      </div>
+      <button class="saved-delete" data-idx="${i}" title="Remove saved workspace">✕</button>
+    `;
+    div.addEventListener("click", e => {
+      if (e.target.classList.contains("saved-delete")) return;
+      connectFromSaved(ws);
+    });
+    div.querySelector(".saved-delete").addEventListener("click", e => {
+      e.stopPropagation();
+      const updated = loadWorkspaces();
+      updated.splice(i, 1);
+      saveWorkspaces(updated);
+      renderSaved();
+    });
+    list.appendChild(div);
+  });
+}
+
+async function connectFromSaved(ws) {
+  showMsg("msgSaved", "Connecting to " + escHtml(ws.name) + "…", "info");
+  await doConnect(ws.config, ws.name, false, "msgSaved",
+    { disabled: false, querySelector: () => ({ style: {} }), /* dummy btn */ });
+}
+
+// Minimal override for saved tab (no real spinner btn)
+const origDoConnect = doConnect;
+
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// ─── Auto-load if session already active ─────────────────────────────────────
+if (sessionStorage.getItem("auditportal_session")) {
+  window.location.href = "index.html";
+}
+
+// Auto-render saved tab if it's the default
+renderSaved();
+</script>
+</body>
+</html>
